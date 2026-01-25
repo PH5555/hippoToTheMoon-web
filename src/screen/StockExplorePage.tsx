@@ -9,14 +9,18 @@ export default function StockExplorePage() {
   const [activeFilter, setActiveFilter] = useState<RankingFilter>('VOLUME');
   const [items, setItems] = useState<StockRankingItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchRanking = async (filter: RankingFilter) => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await stockApi.getStockRanking(filter);
       setItems(response.data.items);
     } catch (error) {
       console.error('Failed to fetch ranking:', error);
+      setError('주식 랭킹 데이터를 불러오는데 실패했습니다.');
+      setItems([]);
     } finally {
       setIsLoading(false);
     }
@@ -84,12 +88,27 @@ export default function StockExplorePage() {
           </div>
 
           {/* Ranking Table */}
-          <RankingTable items={items} isLoading={isLoading} />
+          {error ? (
+            <div className="card-brutal rounded-lg p-8 text-center">
+              <p className="text-magenta font-semibold mb-2">⚠️ 오류 발생</p>
+              <p className="text-text-secondary">{error}</p>
+              <button
+                onClick={() => fetchRanking(activeFilter)}
+                className="mt-4 px-4 py-2 bg-lime text-bg-primary font-semibold rounded border-2 border-border hover:translate-x-0.5 hover:translate-y-0.5 transition-transform"
+              >
+                다시 시도
+              </button>
+            </div>
+          ) : (
+            <RankingTable items={items} isLoading={isLoading} />
+          )}
 
           {/* Info Note */}
-          <p className="text-text-muted text-sm text-center mt-6">
-            * 현재 목 데이터가 표시됩니다. 실제 API 연동 시 실시간 데이터로 대체됩니다.
-          </p>
+          {!error && (
+            <p className="text-text-muted text-sm text-center mt-6">
+              * 실시간 주식 데이터가 표시됩니다.
+            </p>
+          )}
         </div>
 
         {/* Background gradient */}

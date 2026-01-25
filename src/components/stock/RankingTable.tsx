@@ -17,7 +17,10 @@ function formatPrice(value: string): string {
 }
 
 function isPositive(value: string): boolean {
-  return value.startsWith('+');
+  // API에서 양수는 + 기호 없이 숫자만 반환 (예: "2000")
+  // 음수가 아니고 0이 아닌 경우 양수로 판단
+  const num = parseInt(value.replace(/[^0-9-]/g, ''), 10);
+  return !isNaN(num) && num > 0 && !value.startsWith('-');
 }
 
 function isNegative(value: string): boolean {
@@ -116,7 +119,7 @@ export function RankingTable({ items, isLoading = false }: RankingTableProps) {
                 {/* 등락률 */}
                 <td className="py-4 px-4 text-right">
                   <div className={cn('font-mono font-bold', positive && 'text-lime', negative && 'text-magenta')}>
-                    <span className="text-sm">{item.priceChange}</span>
+                    <span className="text-sm">{positive ? '+' : ''}{item.priceChange}</span>
                     <span className="ml-2 text-base">({item.priceChangeRate}%)</span>
                   </div>
                 </td>

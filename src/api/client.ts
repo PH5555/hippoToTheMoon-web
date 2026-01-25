@@ -2,6 +2,7 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
+// Authenticated API client (requires Authorization header)
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -37,5 +38,13 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Public API client (no Authorization header required)
+export const publicApiClient = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 export default apiClient;
