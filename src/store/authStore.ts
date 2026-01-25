@@ -5,7 +5,6 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  needSignUp: boolean;
   isLoading: boolean;
 
   // Actions
@@ -19,11 +18,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
-  needSignUp: false,
   isLoading: true,
 
   login: (response: SignInResponse) => {
-    const { accessToken, refreshToken, needSignUp } = response;
+    const { accessToken, refreshToken } = response;
     
     // Store tokens in localStorage
     localStorage.setItem('accessToken', accessToken);
@@ -33,7 +31,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       accessToken,
       refreshToken,
       isAuthenticated: true,
-      needSignUp,
       isLoading: false,
     });
   },
@@ -47,7 +44,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
-      needSignUp: false,
       isLoading: false,
     });
   },

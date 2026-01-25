@@ -109,13 +109,7 @@ export default function LoginPage() {
       });
 
       login(response);
-
-      if (response.needSignUp) {
-        // TODO: Redirect to sign-up page when implemented
-        navigate('/');
-      } else {
-        navigate('/');
-      }
+      navigate('/');
     } catch (err) {
       console.error('Login failed:', err);
       setError('로그인에 실패했습니다. 다시 시도해주세요.');
