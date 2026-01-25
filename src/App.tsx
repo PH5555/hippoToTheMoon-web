@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import HomePage from './screen/HomePage';
 import LoginPage from './screen/LoginPage';
+import StockRankingPage from './screen/StockRankingPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -37,6 +38,7 @@ function AppContent() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/ranking" element={<StockRankingPage />} />
     </Routes>
   );
 }
