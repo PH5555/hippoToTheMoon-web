@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { StockRankingItem } from '../../types/stock';
 import { cn } from '../../utils/cn';
 
@@ -40,6 +41,12 @@ function SkeletonRow() {
 }
 
 export function RankingTable({ items, isLoading = false }: RankingTableProps) {
+  const navigate = useNavigate();
+
+  const handleRowClick = (stockCode: string, stockName: string) => {
+    navigate(`/stock/${stockCode}?name=${encodeURIComponent(stockName)}`);
+  };
+
   if (isLoading) {
     return (
       <div className="card-brutal rounded-lg overflow-hidden">
@@ -84,6 +91,7 @@ export function RankingTable({ items, isLoading = false }: RankingTableProps) {
               <tr
                 key={item.stockCode}
                 className="border-b border-border hover:bg-bg-secondary/50 transition-colors cursor-pointer"
+                onClick={() => handleRowClick(item.stockCode, item.stockName)}
               >
                 {/* 순위 */}
                 <td className="py-4 px-4">

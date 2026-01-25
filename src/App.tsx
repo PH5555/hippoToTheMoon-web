@@ -5,6 +5,7 @@ import { useAuthStore } from './store/authStore';
 import HomePage from './screen/HomePage';
 import LoginPage from './screen/LoginPage';
 import StockRankingPage from './screen/StockRankingPage';
+import StockDetailPage from './screen/StockDetailPage';
 import StockExplorePage from './screen/StockExplorePage';
 import PortfolioPage from './screen/PortfolioPage';
 import MyPage from './screen/MyPage';
@@ -42,6 +43,7 @@ function AppContent() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/ranking" element={<StockRankingPage />} />
+      <Route path="/stock/:stockCode" element={<StockDetailPage />} />
       <Route path="/explore" element={<StockExplorePage />} />
       <Route path="/portfolio" element={<PortfolioPage />} />
       <Route path="/mypage" element={<MyPage />} />
