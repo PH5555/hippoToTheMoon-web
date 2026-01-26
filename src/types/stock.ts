@@ -18,41 +18,47 @@ export interface StockRankingData {
 
 export type StockRankingResponse = ApiResponse<StockRankingData>;
 
-// 주식 기본 정보
-export interface StockBasicInfo {
+// ============================================
+// 주식 상세 정보 API 타입
+// ============================================
+
+// 주식 기본정보 API 응답
+export interface StockDetailData {
   stockCode: string;
   stockName: string;
-  marketType: string;        // KOSPI, KOSDAQ
-  sector: string;            // 업종
-  capital: string;           // 자본금
-  parValue: string;          // 액면가
-  listedShares: string;      // 상장주식수
-  marketCap: string;         // 시가총액
-  per: string;               // PER
-  pbr: string;               // PBR
-  eps: string;               // EPS
-  bps: string;               // BPS
-}
-
-// 실시간 가격 정보
-export interface StockPriceInfo {
   currentPrice: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
   priceChange: string;
   priceChangeRate: string;
-  openPrice: string;         // 시가
-  highPrice: string;         // 고가
-  lowPrice: string;          // 저가
-  volume: string;            // 거래량
-  tradingValue: string;      // 거래대금
-  prevClosePrice: string;    // 전일종가
+  marketCap: string;
+  per: string;
+  pbr: string;
+  eps: string;
+  volume: string;
 }
 
-// 차트 데이터 (시간별 OHLC)
-export interface StockChartDataPoint {
-  time: string;
-  open: number;    // 시가
-  high: number;    // 고가
-  low: number;     // 저가
-  close: number;   // 종가
-  volume: number;
+export type StockDetailResponse = ApiResponse<StockDetailData>;
+
+// 차트 기간 타입
+export type ChartPeriod = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+
+// 차트 데이터 포인트 (API 응답)
+export interface ChartDataPoint {
+  date: string;      // YYYYMMDD
+  open: string;
+  high: string;
+  low: string;
+  close: string;
+  volume: string;
 }
+
+// 차트 API 응답 데이터
+export interface StockChartData {
+  stockCode: string;
+  period: ChartPeriod;
+  data: ChartDataPoint[];
+}
+
+export type StockChartResponse = ApiResponse<StockChartData>;
