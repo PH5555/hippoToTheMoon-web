@@ -4,6 +4,7 @@ import type {
   StockRankingResponse, 
   StockDetailResponse,
   StockChartResponse,
+  StockSearchResponse,
   ChartPeriod,
 } from '../types/stock';
 
@@ -51,10 +52,33 @@ export async function getStockChart(
   return response.data;
 }
 
+/**
+ * 종목 검색 (자동완성)
+ * @param keyword - 검색 키워드 (종목명 또는 종목코드)
+ * @param limit - 최대 결과 개수 (기본값: 10)
+ * @param signal - AbortSignal (요청 취소용)
+ * @returns 검색 결과 목록
+ */
+export async function searchStocks(
+  keyword: string,
+  limit: number = 10,
+  signal?: AbortSignal
+): Promise<StockSearchResponse> {
+  const response = await publicApiClient.get<StockSearchResponse>(
+    '/api/v1/stocks/search',
+    {
+      params: { keyword, limit },
+      signal,
+    }
+  );
+  return response.data;
+}
+
 const stockApi = {
   getStockRanking,
   getStockDetail,
   getStockChart,
+  searchStocks,
 };
 
 export default stockApi;

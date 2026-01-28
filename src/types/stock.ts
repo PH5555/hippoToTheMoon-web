@@ -62,3 +62,17 @@ export interface StockChartData {
 }
 
 export type StockChartResponse = ApiResponse<StockChartData>;
+
+// ============================================
+// 종목 검색 API 타입
+// ============================================
+
+export type StockMarket = 'KOSPI' | 'KOSDAQ';
+
+export interface StockSearchItem {
+  stockCode: string;
+  stockName: string;
+  market: StockMarket;
+}
+
+export type StockSearchResponse = ApiResponse<StockSearchItem[]>;

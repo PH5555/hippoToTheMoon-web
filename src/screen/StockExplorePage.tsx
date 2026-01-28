@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Header } from '../components/ui/Header';
 import { FilterTabs } from '../components/stock/FilterTabs';
 import { RankingTable } from '../components/stock/RankingTable';
+import { StockSearchInput } from '../components/stock/StockSearchInput';
 import stockApi from '../api/stock';
 import type { RankingFilter, StockRankingItem } from '../types/stock';
 
@@ -64,6 +65,11 @@ export default function StockExplorePage() {
             <p className="text-text-secondary">
               실시간 주식 시장의 트렌드를 확인하세요
             </p>
+          </div>
+
+          {/* 검색창 */}
+          <div className="mb-8">
+            <StockSearchInput />
           </div>
 
           {/* Filter Tabs */}
