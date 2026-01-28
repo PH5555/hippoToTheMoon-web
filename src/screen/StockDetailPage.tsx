@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/Button';
 import { PriceChart } from '../components/stock/PriceChart';
+import { TradePanel } from '../components/trading';
 import authApi from '../api/auth';
 import stockApi from '../api/stock';
 import type { ChartPeriod } from '../types/stock';
+import type { TradeResult } from '../types/trading';
 import { cn } from '../utils/cn';
 
 export default function StockDetailPage() {
@@ -46,6 +48,12 @@ export default function StockDetailPage() {
       logout();
     }
   };
+
+  // 거래 성공 핸들러
+  const handleTradeSuccess = useCallback((result: TradeResult) => {
+    console.log('Trade success:', result);
+    // 필요한 경우 토스트 알림이나 추가 UI 업데이트를 여기서 처리
+  }, []);
 
   // 가격 변동이 양수인지 확인
   const stockInfo = detailData?.data;
@@ -207,6 +215,17 @@ export default function StockDetailPage() {
               period={chartPeriod}
               onPeriodChange={setChartPeriod}
               isLoading={isChartLoading}
+            />
+          </div>
+
+          {/* Trade Panel */}
+          <div className="mb-8">
+            <TradePanel
+              stockCode={stockInfo.stockCode}
+              stockName={stockInfo.stockName}
+              currentPrice={Number(stockInfo.currentPrice)}
+              isAuthenticated={isAuthenticated}
+              onTradeSuccess={handleTradeSuccess}
             />
           </div>
 
