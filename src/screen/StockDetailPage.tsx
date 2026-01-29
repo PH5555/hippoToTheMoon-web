@@ -144,22 +144,26 @@ export default function StockDetailPage() {
             </div>
 
             {/* Additional Price Info */}
-            <div className="mt-6 pt-6 border-t border-border grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div>
+            <div className="mt-6 pt-6 border-t border-border grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div className="bg-bg-secondary border border-border rounded-lg p-3">
                 <p className="text-text-muted text-xs mb-1">거래량</p>
-                <p className="font-mono text-text-secondary">{Number(stockInfo.volume).toLocaleString()}</p>
+                <p className="font-mono font-semibold text-text-primary">{Number(stockInfo.volume).toLocaleString()}</p>
               </div>
-              <div>
+              <div className="bg-bg-secondary border border-border rounded-lg p-3">
                 <p className="text-text-muted text-xs mb-1">시가총액</p>
-                <p className="font-mono text-text-secondary">{Number(stockInfo.marketCap).toLocaleString()}</p>
+                <p className="font-mono font-semibold text-text-primary">{Number(stockInfo.marketCap).toLocaleString()}</p>
               </div>
-              <div>
+              <div className="bg-bg-secondary border border-border rounded-lg p-3">
                 <p className="text-text-muted text-xs mb-1">PER</p>
-                <p className="font-mono text-text-secondary">{stockInfo.per}</p>
+                <p className="font-mono font-semibold text-lime">{stockInfo.per}</p>
               </div>
-              <div>
+              <div className="bg-bg-secondary border border-border rounded-lg p-3">
                 <p className="text-text-muted text-xs mb-1">PBR</p>
-                <p className="font-mono text-text-secondary">{stockInfo.pbr}</p>
+                <p className="font-mono font-semibold text-lime">{stockInfo.pbr}</p>
+              </div>
+              <div className="bg-bg-secondary border border-border rounded-lg p-3">
+                <p className="text-text-muted text-xs mb-1">EPS</p>
+                <p className="font-mono font-semibold text-cyan">{Number(stockInfo.eps).toLocaleString()}원</p>
               </div>
             </div>
           </div>
@@ -189,18 +193,6 @@ export default function StockDetailPage() {
             />
           </div>
 
-          {/* Basic Info Section */}
-          <div className="card-brutal rounded-lg p-6">
-            <h3 className="font-display text-xl text-text-primary mb-6">
-              📋 기본 정보
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-              <InfoCard label="시가총액" value={`${Number(stockInfo.marketCap).toLocaleString()}원`} />
-              <InfoCard label="PER" value={stockInfo.per} highlight />
-              <InfoCard label="PBR" value={stockInfo.pbr} highlight />
-              <InfoCard label="EPS" value={`${Number(stockInfo.eps).toLocaleString()}원`} />
-            </div>
-          </div>
         </div>
 
         {/* Background gradient */}
@@ -222,25 +214,3 @@ export default function StockDetailPage() {
   );
 }
 
-// Info Card Component
-function InfoCard({ 
-  label, 
-  value, 
-  highlight = false 
-}: { 
-  label: string; 
-  value: string; 
-  highlight?: boolean;
-}) {
-  return (
-    <div className="bg-bg-secondary border border-border rounded-lg p-4">
-      <p className="text-text-muted text-xs mb-2">{label}</p>
-      <p className={cn(
-        'font-mono font-semibold text-lg',
-        highlight ? 'text-lime' : 'text-text-primary'
-      )}>
-        {value}
-      </p>
-    </div>
-  );
-}

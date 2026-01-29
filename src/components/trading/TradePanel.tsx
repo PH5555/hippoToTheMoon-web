@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { TradeForm } from './TradeForm';
 import { OrderConfirmModal } from './OrderConfirmModal';
+import { OrderResultModal } from './OrderResultModal';
 import { useTrading } from '../../hooks/useTrading';
 import { useHoldings } from '../../hooks/useHoldings';
 import { cn } from '../../utils/cn';
@@ -34,7 +35,9 @@ export function TradePanel({
 }: TradePanelProps) {
   const [tradeType, setTradeType] = useState<TradeType>('BUY');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
   const [pendingQuantity, setPendingQuantity] = useState(0);
+  const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [successResult, setSuccessResult] = useState<TradeResult | null>(null);
 
   const { buy, sell, isLoading, error } = useTrading();
@@ -50,8 +53,9 @@ export function TradePanel({
   // 주문 요청 핸들러 (모달 열기)
   const handleOrderRequest = useCallback((quantity: number) => {
     setPendingQuantity(quantity);
+    setEstimatedPrice(currentPrice); // 슬리피지 계산용 예상가 저장
     setShowConfirmModal(true);
-  }, []);
+  }, [currentPrice]);
 
   // 주문 확인 핸들러
   const handleConfirm = useCallback(async () => {
@@ -61,9 +65,15 @@ export function TradePanel({
     if (result) {
       setSuccessResult(result);
       setShowConfirmModal(false);
+      setShowResultModal(true); // 결과 모달 표시
       onTradeSuccess?.(result);
     }
   }, [tradeType, buy, sell, stockCode, pendingQuantity, onTradeSuccess]);
+
+  // 결과 모달 닫기 핸들러
+  const handleCloseResultModal = useCallback(() => {
+    setShowResultModal(false);
+  }, []);
 
   // 모달 닫기
   const handleCancelModal = useCallback(() => {
@@ -170,31 +180,6 @@ export function TradePanel({
           error={error}
           onSubmit={handleOrderRequest}
         />
-
-        {/* 성공 메시지 */}
-        {successResult && (
-          <div className={cn(
-            'mt-4 p-4 rounded-lg border-2 animate-in slide-in-from-bottom duration-300',
-            successResult.tradeType === 'BUY'
-              ? 'bg-lime/10 border-lime'
-              : 'bg-magenta/10 border-magenta'
-          )}>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">🎉</span>
-              <span className={cn(
-                'font-semibold',
-                successResult.tradeType === 'BUY' ? 'text-lime' : 'text-magenta'
-              )}>
-                {successResult.tradeType === 'BUY' ? '매수' : '매도'} 완료!
-              </span>
-            </div>
-            <div className="text-sm text-text-secondary space-y-1">
-              <p>체결가: <span className="font-mono">{successResult.price.toLocaleString()}원</span></p>
-              <p>체결수량: <span className="font-mono">{successResult.quantity}주</span></p>
-              <p>총금액: <span className="font-mono">{successResult.amount.toLocaleString()}원</span></p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 주문 확인 모달 */}
@@ -208,6 +193,14 @@ export function TradePanel({
         isLoading={isLoading}
         onConfirm={handleConfirm}
         onCancel={handleCancelModal}
+      />
+
+      {/* 거래 결과 모달 */}
+      <OrderResultModal
+        isOpen={showResultModal}
+        result={successResult}
+        estimatedPrice={estimatedPrice}
+        onClose={handleCloseResultModal}
       />
     </>
   );

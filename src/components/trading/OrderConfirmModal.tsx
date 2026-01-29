@@ -107,18 +107,29 @@ export function OrderConfirmModal({
           <div className="flex justify-between items-center py-3 border-b border-border">
             <span className="text-text-secondary">예상 체결가</span>
             <span className="font-mono text-text-primary">
-              {price.toLocaleString()}원
+              약 {price.toLocaleString()}원
             </span>
           </div>
 
           <div className="flex justify-between items-center py-3">
-            <span className="text-text-secondary font-semibold">총 주문금액</span>
+            <span className="text-text-secondary font-semibold">예상 금액</span>
             <span className={cn(
               'font-mono font-bold text-xl',
               isBuy ? 'text-lime' : 'text-magenta'
             )}>
-              {totalAmount.toLocaleString()}원
+              약 {totalAmount.toLocaleString()}원
             </span>
+          </div>
+        </div>
+
+        {/* 가격 변동 안내 */}
+        <div className="mb-6 p-3 bg-bg-primary border border-border rounded-lg">
+          <div className="flex items-start gap-2 text-sm text-text-muted">
+            <span className="text-base flex-shrink-0">ℹ️</span>
+            <p>
+              시장가 주문으로 실제 체결 가격은 주문 시점의 현재가로 결정되며,
+              표시된 예상 가격과 다를 수 있습니다.
+            </p>
           </div>
         </div>
 
