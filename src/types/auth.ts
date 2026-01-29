@@ -5,6 +5,10 @@ export interface SignInRequest {
   token: string;
 }
 
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
 export interface SignInResponse {
   accessToken: string;
   refreshToken: string;

@@ -1,5 +1,5 @@
 import apiClient, { publicApiClient } from './client';
-import type { ApiResponse, SignInRequest, SignInResponse } from '../types/auth';
+import type { ApiResponse, RefreshTokenRequest, SignInRequest, SignInResponse } from '../types/auth';
 
 export const authApi = {
   /**
@@ -20,6 +20,18 @@ export const authApi = {
    */
   signOut: async (): Promise<void> => {
     await apiClient.post<ApiResponse<null>>('/api/v1/auth/sign-out');
+  },
+
+  /**
+   * 토큰 재발급 (Public API - 인증 불필요)
+   * POST /api/v1/auth/refresh
+   */
+  refresh: async (request: RefreshTokenRequest): Promise<SignInResponse> => {
+    const response = await publicApiClient.post<ApiResponse<SignInResponse>>(
+      '/api/v1/auth/refresh',
+      request
+    );
+    return response.data.data;
   },
 };
 

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 import { useAuthStore } from './store/authStore';
 import HomePage from './screen/HomePage';
 import LoginPage from './screen/LoginPage';
@@ -56,6 +57,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AppContent />
+        <Toaster position="top-center" richColors />
       </BrowserRouter>
     </QueryClientProvider>
   );
