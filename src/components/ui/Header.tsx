@@ -44,6 +44,15 @@ export function Header() {
               주식 탐색
             </Link>
             <Link
+              to="/ranking"
+              className={cn(
+                'text-sm font-semibold transition-colors hover:text-lime',
+                isActive('/ranking') ? 'text-lime' : 'text-text-secondary'
+              )}
+            >
+              랭킹
+            </Link>
+            <Link
               to="/portfolio"
               className={cn(
                 'text-sm font-semibold transition-colors hover:text-lime',

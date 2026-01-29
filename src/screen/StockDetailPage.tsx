@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
+import { Header } from '../components/ui/Header';
 import { Button } from '../components/ui/Button';
 import { PriceChart } from '../components/stock/PriceChart';
 import { TradePanel } from '../components/trading';
-import authApi from '../api/auth';
 import stockApi from '../api/stock';
 import type { ChartPeriod } from '../types/stock';
 import type { TradeResult } from '../types/trading';
@@ -15,7 +15,7 @@ export default function StockDetailPage() {
   const { stockCode } = useParams<{ stockCode: string }>();
   const navigate = useNavigate();
   
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('DAILY');
 
   // 주식 기본정보 조회
@@ -38,16 +38,6 @@ export default function StockDetailPage() {
     queryFn: () => stockApi.getStockChart(stockCode!, chartPeriod),
     enabled: !!stockCode,
   });
-
-  const handleLogout = async () => {
-    try {
-      await authApi.signOut();
-    } catch (error) {
-      console.error('Logout API error:', error);
-    } finally {
-      logout();
-    }
-  };
 
   // 거래 성공 핸들러
   const handleTradeSuccess = useCallback((result: TradeResult) => {
@@ -92,37 +82,7 @@ export default function StockDetailPage() {
       <div className="noise-overlay" />
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b-2 border-border bg-bg-primary/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl">🦛</span>
-              <h1 className="font-display text-xl text-lime tracking-tight">
-                떡상하마
-              </h1>
-            </Link>
-
-            {/* Navigation */}
-            <nav className="flex items-center gap-4">
-              <Link to="/ranking" className="text-text-secondary hover:text-lime font-semibold text-sm transition-colors">
-                랭킹
-              </Link>
-              {isAuthenticated ? (
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  로그아웃
-                </Button>
-              ) : (
-                <Link to="/login">
-                  <Button variant="primary" size="sm">
-                    로그인
-                  </Button>
-                </Link>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main content */}
       <main className="pt-24 pb-16 px-4">

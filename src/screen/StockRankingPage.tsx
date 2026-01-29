@@ -1,101 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { Button } from '../components/ui/Button';
-import { FilterTabs } from '../components/stock/FilterTabs';
-import { RankingTable } from '../components/stock/RankingTable';
-import authApi from '../api/auth';
-import stockApi from '../api/stock';
-import type { RankingFilter, StockRankingItem } from '../types/stock';
+import { Header } from '../components/ui/Header';
 
 export default function StockRankingPage() {
-  const { isAuthenticated, logout } = useAuthStore();
-  const [activeFilter, setActiveFilter] = useState<RankingFilter>('VOLUME');
-  const [items, setItems] = useState<StockRankingItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleLogout = async () => {
-    try {
-      await authApi.signOut();
-    } catch (error) {
-      console.error('Logout API error:', error);
-    } finally {
-      logout();
-    }
-  };
-
-  const fetchRanking = async (filter: RankingFilter) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await stockApi.getStockRanking(filter);
-      setItems(response.data.items);
-    } catch (error) {
-      console.error('Failed to fetch ranking:', error);
-      setError('주식 랭킹 데이터를 불러오는데 실패했습니다.');
-      setItems([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRanking(activeFilter);
-  }, [activeFilter]);
-
-  const handleFilterChange = (filter: RankingFilter) => {
-    setActiveFilter(filter);
-  };
-
-  const getFilterTitle = (filter: RankingFilter): string => {
-    switch (filter) {
-      case 'VOLUME':
-        return '거래량 TOP 10';
-      case 'RISING':
-        return '급상승 TOP 10';
-      case 'FALLING':
-        return '급하락 TOP 10';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-bg-primary">
       {/* Noise overlay */}
       <div className="noise-overlay" />
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b-2 border-border bg-bg-primary/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl">🦛</span>
-              <h1 className="font-display text-xl text-lime tracking-tight">
-                떡상하마
-              </h1>
-            </Link>
-
-            {/* Navigation */}
-            <nav className="flex items-center gap-4">
-              <Link to="/ranking" className="text-lime font-semibold text-sm">
-                랭킹
-              </Link>
-              {isAuthenticated ? (
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  로그아웃
-                </Button>
-              ) : (
-                <Link to="/login">
-                  <Button variant="primary" size="sm">
-                    로그인
-                  </Button>
-                </Link>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main content */}
       <main className="pt-24 pb-16 px-4">
@@ -103,56 +15,23 @@ export default function StockRankingPage() {
           {/* Page Header */}
           <div className="mb-8">
             <h2 className="font-display text-4xl sm:text-5xl text-text-primary mb-2">
-              주식 <span className="text-lime">랭킹</span>
+              투자자 <span className="text-lime">랭킹</span>
             </h2>
             <p className="text-text-secondary">
-              실시간 주식 시장의 트렌드를 확인하세요
+              수익률 TOP 투자자들을 확인하세요
             </p>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="mb-6">
-            <FilterTabs activeFilter={activeFilter} onFilterChange={handleFilterChange} />
-          </div>
-
-          {/* Current Filter Title */}
-          <div className="mb-4 flex items-center gap-3">
-            <h3 className="font-display text-2xl text-text-primary">
-              {getFilterTitle(activeFilter)}
+          {/* Coming Soon Placeholder */}
+          <div className="card-brutal rounded-lg p-16 text-center">
+            <span className="text-6xl block mb-6">🏆</span>
+            <h3 className="font-display text-2xl text-text-primary mb-4">
+              Coming Soon
             </h3>
-            {activeFilter === 'RISING' && (
-              <span className="text-lime text-xl">📈</span>
-            )}
-            {activeFilter === 'FALLING' && (
-              <span className="text-magenta text-xl">📉</span>
-            )}
-            {activeFilter === 'VOLUME' && (
-              <span className="text-xl">🔥</span>
-            )}
-          </div>
-
-          {/* Ranking Table */}
-          {error ? (
-            <div className="card-brutal rounded-lg p-8 text-center">
-              <p className="text-magenta font-semibold mb-2">⚠️ 오류 발생</p>
-              <p className="text-text-secondary">{error}</p>
-              <button
-                onClick={() => fetchRanking(activeFilter)}
-                className="mt-4 px-4 py-2 bg-lime text-bg-primary font-semibold rounded border-2 border-border hover:translate-x-0.5 hover:translate-y-0.5 transition-transform"
-              >
-                다시 시도
-              </button>
-            </div>
-          ) : (
-            <RankingTable items={items} isLoading={isLoading} />
-          )}
-
-          {/* Info Note */}
-          {!error && (
-            <p className="text-text-muted text-sm text-center mt-6">
-              * 실시간 주식 데이터가 표시됩니다.
+            <p className="text-text-secondary">
+              투자자 랭킹 기능이 곧 출시됩니다!
             </p>
-          )}
+          </div>
         </div>
 
         {/* Background gradient */}
