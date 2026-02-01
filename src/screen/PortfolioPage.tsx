@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
+import { useMultiStockPrices } from '../hooks/useMultiStockPrices';
 import { Header } from '../components/ui/Header';
 import tradingApi from '../api/trading';
 import { cn } from '../utils/cn';
 import type { Holding } from '../types/trading';
+import type { StockPriceUpdate } from '../types/websocket';
 
 export default function PortfolioPage() {
   const navigate = useNavigate();
@@ -29,20 +31,51 @@ export default function PortfolioPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
   const holdings = holdingsData?.data ?? [];
 
-  // 요약 계산
-  const totalValue = holdings.reduce((sum, h) => sum + h.totalValue, 0);
-  const totalProfitLoss = holdings.reduce((sum, h) => sum + h.profitLoss, 0);
-  const totalInvested = holdings.reduce((sum, h) => sum + (h.averagePrice * h.quantity), 0);
+  // 보유 종목 코드 목록
+  const stockCodes = useMemo(
+    () => holdings.map((h) => h.stockCode),
+    [holdings]
+  );
+
+  // 실시간 가격 구독
+  const { getPrice, isConnected } = useMultiStockPrices(stockCodes, isAuthenticated && holdings.length > 0);
+
+  // 실시간 가격이 반영된 보유 정보 계산
+  const holdingsWithRealtimePrice = useMemo(() => {
+    return holdings.map((holding) => {
+      const realtimePrice = getPrice(holding.stockCode);
+      if (realtimePrice) {
+        const currentPrice = realtimePrice.currentPrice;
+        const totalValue = currentPrice * holding.quantity;
+        const invested = holding.averagePrice * holding.quantity;
+        const profitLoss = totalValue - invested;
+        const profitLossRate = invested > 0 ? ((profitLoss / invested) * 100).toFixed(2) : '0.00';
+        return {
+          ...holding,
+          currentPrice,
+          totalValue,
+          profitLoss,
+          profitLossRate,
+        };
+      }
+      return holding;
+    });
+  }, [holdings, getPrice]);
+
+  // 요약 계산 (실시간 가격 반영)
+  const totalValue = holdingsWithRealtimePrice.reduce((sum, h) => sum + h.totalValue, 0);
+  const totalProfitLoss = holdingsWithRealtimePrice.reduce((sum, h) => sum + h.profitLoss, 0);
+  const totalInvested = holdingsWithRealtimePrice.reduce((sum, h) => sum + (h.averagePrice * h.quantity), 0);
   const totalProfitLossRate = totalInvested > 0 
     ? ((totalProfitLoss / totalInvested) * 100).toFixed(2) 
     : '0.00';
   const isPositiveTotal = totalProfitLoss >= 0;
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-bg-primary">
@@ -57,9 +90,17 @@ export default function PortfolioPage() {
         <div className="max-w-5xl mx-auto">
           {/* Page Header */}
           <div className="mb-8">
-            <h2 className="font-display text-4xl sm:text-5xl text-text-primary mb-2">
-              내 <span className="text-lime">포트폴리오</span>
-            </h2>
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="font-display text-4xl sm:text-5xl text-text-primary">
+                내 <span className="text-lime">포트폴리오</span>
+              </h2>
+              {isConnected && holdings.length > 0 && (
+                <span className="flex items-center gap-1.5 px-2 py-1 bg-lime/10 border border-lime/30 rounded text-xs text-lime">
+                  <span className="w-2 h-2 bg-lime rounded-full animate-pulse" />
+                  실시간
+                </span>
+              )}
+            </div>
             <p className="text-text-secondary">
               보유 주식 현황과 수익률을 확인하세요
             </p>
@@ -160,8 +201,12 @@ export default function PortfolioPage() {
 
               {/* 보유 주식 리스트 */}
               <div className="space-y-4">
-                {holdings.map((holding) => (
-                  <HoldingCard key={holding.stockCode} holding={holding} />
+                {holdingsWithRealtimePrice.map((holding) => (
+                  <HoldingCard 
+                    key={holding.stockCode} 
+                    holding={holding}
+                    realtimePrice={getPrice(holding.stockCode)}
+                  />
                 ))}
               </div>
             </>
@@ -188,9 +233,15 @@ export default function PortfolioPage() {
 }
 
 // 보유 주식 카드 컴포넌트
-function HoldingCard({ holding }: { holding: Holding }) {
+interface HoldingCardProps {
+  holding: Holding;
+  realtimePrice?: StockPriceUpdate;
+}
+
+function HoldingCard({ holding, realtimePrice }: HoldingCardProps) {
   const profitLossRate = parseFloat(holding.profitLossRate);
   const isPositive = holding.profitLoss >= 0;
+  const hasRealtimeData = !!realtimePrice;
 
   return (
     <Link
@@ -200,13 +251,16 @@ function HoldingCard({ holding }: { holding: Holding }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* 종목 정보 */}
         <div className="flex-1">
-          <div className="flex items-baseline gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2">
             <h4 className="font-display text-xl text-text-primary">
               {holding.stockName}
             </h4>
             <span className="text-text-muted font-mono text-sm">
               {holding.stockCode}
             </span>
+            {hasRealtimeData && (
+              <span className="w-2 h-2 bg-lime rounded-full animate-pulse" title="실시간" />
+            )}
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">

@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
+import { useStockPrice } from '../hooks/useStockPrice';
 import { Header } from '../components/ui/Header';
 import { Button } from '../components/ui/Button';
 import { PriceChart } from '../components/stock/PriceChart';
@@ -39,15 +40,41 @@ export default function StockDetailPage() {
     enabled: !!stockCode,
   });
 
+  // 실시간 가격 구독
+  const { priceData: realtimePrice, isConnected } = useStockPrice(stockCode);
+
   // 거래 성공 핸들러
   const handleTradeSuccess = useCallback((result: TradeResult) => {
     console.log('Trade success:', result);
     // 필요한 경우 토스트 알림이나 추가 UI 업데이트를 여기서 처리
   }, []);
 
-  // 가격 변동이 양수인지 확인
+  // 기본 정보 (REST API)
   const stockInfo = detailData?.data;
-  const isPositiveChange = stockInfo?.priceChange ? !stockInfo.priceChange.startsWith('-') : false;
+  
+  // 실시간 가격 또는 REST API 가격 사용
+  const displayPrice = useMemo(() => {
+    if (realtimePrice) {
+      return {
+        currentPrice: realtimePrice.currentPrice,
+        priceChange: realtimePrice.changePrice,
+        priceChangeRate: realtimePrice.changeRate,
+        volume: realtimePrice.volume,
+      };
+    }
+    if (stockInfo) {
+      return {
+        currentPrice: Number(stockInfo.currentPrice),
+        priceChange: Number(stockInfo.priceChange),
+        priceChangeRate: parseFloat(stockInfo.priceChangeRate),
+        volume: Number(stockInfo.volume),
+      };
+    }
+    return null;
+  }, [realtimePrice, stockInfo]);
+
+  // 가격 변동이 양수인지 확인
+  const isPositiveChange = displayPrice ? displayPrice.priceChange >= 0 : false;
 
   // 로딩 상태
   if (isDetailLoading) {
@@ -111,10 +138,18 @@ export default function StockDetailPage() {
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               {/* Current Price */}
               <div>
-                <p className="text-text-secondary text-sm mb-1">현재가</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-text-secondary text-sm">현재가</p>
+                  {isConnected && (
+                    <span className="flex items-center gap-1 text-xs text-lime">
+                      <span className="w-2 h-2 bg-lime rounded-full animate-pulse" />
+                      실시간
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-baseline gap-3">
                   <span className="font-mono font-bold text-4xl sm:text-5xl text-text-primary">
-                    {Number(stockInfo.currentPrice).toLocaleString()}
+                    {displayPrice?.currentPrice.toLocaleString()}
                   </span>
                   <span className="text-text-muted text-lg">원</span>
                 </div>
@@ -122,7 +157,7 @@ export default function StockDetailPage() {
                   'font-mono font-bold text-xl mt-2',
                   isPositiveChange ? 'text-lime' : 'text-magenta'
                 )}>
-                  {isPositiveChange ? '+' : ''}{Number(stockInfo.priceChange).toLocaleString()} ({isPositiveChange ? '+' : ''}{stockInfo.priceChangeRate}%)
+                  {isPositiveChange ? '+' : ''}{displayPrice?.priceChange.toLocaleString()} ({isPositiveChange ? '+' : ''}{displayPrice?.priceChangeRate.toFixed(2)}%)
                 </div>
               </div>
 
@@ -147,7 +182,7 @@ export default function StockDetailPage() {
             <div className="mt-6 pt-6 border-t border-border grid grid-cols-2 sm:grid-cols-5 gap-3">
               <div className="bg-bg-secondary border border-border rounded-lg p-3">
                 <p className="text-text-muted text-xs mb-1">거래량</p>
-                <p className="font-mono font-semibold text-text-primary">{Number(stockInfo.volume).toLocaleString()}</p>
+                <p className="font-mono font-semibold text-text-primary">{displayPrice?.volume.toLocaleString()}</p>
               </div>
               <div className="bg-bg-secondary border border-border rounded-lg p-3">
                 <p className="text-text-muted text-xs mb-1">시가총액</p>
@@ -187,7 +222,7 @@ export default function StockDetailPage() {
             <TradePanel
               stockCode={stockInfo.stockCode}
               stockName={stockInfo.stockName}
-              currentPrice={Number(stockInfo.currentPrice)}
+              currentPrice={displayPrice?.currentPrice ?? Number(stockInfo.currentPrice)}
               isAuthenticated={isAuthenticated}
               onTradeSuccess={handleTradeSuccess}
             />
