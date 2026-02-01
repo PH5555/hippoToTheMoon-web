@@ -5,14 +5,8 @@ export interface SignInRequest {
   token: string;
 }
 
-export interface RefreshTokenRequest {
-  refreshToken: string;
-}
-
-export interface SignInResponse {
-  accessToken: string;
-  refreshToken: string;
-}
+// RefreshTokenRequest - 제거됨 (쿠키 기반 인증으로 body 전송 불필요)
+// SignInResponse - 제거됨 (토큰이 Set-Cookie 헤더로 전달됨)
 
 export interface ApiResponse<T> {
   timestamp: number;

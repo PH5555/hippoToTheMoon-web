@@ -27,7 +27,7 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/login?redirect=/portfolio', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 

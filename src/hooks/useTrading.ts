@@ -37,8 +37,10 @@ export function useTrading(): UseTradingReturn {
   >({
     mutationFn: ({ stockCode, quantity }) => buyStock(stockCode, quantity),
     onSuccess: () => {
-      // 성공 시 보유 주식 목록 새로고침
+      // 성공 시 보유 주식 목록 및 유저 정보(잔고) 새로고침
       queryClient.invalidateQueries({ queryKey: ['holdings'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['tradeHistory'] });
     },
   });
 
@@ -50,8 +52,10 @@ export function useTrading(): UseTradingReturn {
   >({
     mutationFn: ({ stockCode, quantity }) => sellStock(stockCode, quantity),
     onSuccess: () => {
-      // 성공 시 보유 주식 목록 새로고침
+      // 성공 시 보유 주식 목록 및 유저 정보(잔고) 새로고침
       queryClient.invalidateQueries({ queryKey: ['holdings'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['tradeHistory'] });
     },
   });
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { useAuthStore } from '../store/authStore';
 import authApi from '../api/auth';
@@ -20,12 +20,24 @@ export default function LoginPage() {
   // Ref to prevent double execution in React StrictMode
   const isProcessingRef = useRef(false);
 
+  // Get redirect URL from query params and save to sessionStorage
+  const redirectUrl = searchParams.get('redirect') || '/';
+  
+  // 로그인 페이지 진입 시 redirect URL을 sessionStorage에 저장
+  useEffect(() => {
+    if (redirectUrl && redirectUrl !== '/') {
+      sessionStorage.setItem('loginRedirect', redirectUrl);
+    }
+  }, [redirectUrl]);
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      const savedRedirect = sessionStorage.getItem('loginRedirect') || redirectUrl;
+      sessionStorage.removeItem('loginRedirect');
+      navigate(savedRedirect);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, redirectUrl]);
 
   // Handle OAuth callbacks
   useEffect(() => {
@@ -103,13 +115,15 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await authApi.signIn({
+      await authApi.signIn({
         socialType,
         token: accessToken,
       });
+      // 토큰은 Set-Cookie 헤더로 자동 설정됨
 
-      login(response);
-      navigate('/');
+      // login() 호출 후 isAuthenticated가 true가 되면
+      // useEffect에서 자동으로 redirect 처리됨
+      login();
     } catch (err) {
       console.error('Login failed:', err);
       setError('로그인에 실패했습니다. 다시 시도해주세요.');
@@ -117,7 +131,7 @@ export default function LoginPage() {
     } finally {
       setIsProcessing(false);
     }
-  }, [login, navigate, setLoading]);
+  }, [login, setLoading]);
 
   const handleKakaoLogin = () => {
     if (!KAKAO_REST_API_KEY) {
@@ -159,7 +173,10 @@ export default function LoginPage() {
 
       {/* Header */}
       <header className="p-4">
-        <Link to="/" className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
+        >
           <svg
             className="w-5 h-5"
             fill="none"
@@ -173,8 +190,8 @@ export default function LoginPage() {
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             />
           </svg>
-          <span>홈으로</span>
-        </Link>
+          <span>뒤로가기</span>
+        </button>
       </header>
 
       {/* Main content */}

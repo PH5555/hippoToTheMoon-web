@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { TradeForm } from './TradeForm';
 import { OrderConfirmModal } from './OrderConfirmModal';
@@ -33,6 +33,7 @@ export function TradePanel({
   isAuthenticated,
   onTradeSuccess,
 }: TradePanelProps) {
+  const location = useLocation();
   const [tradeType, setTradeType] = useState<TradeType>('BUY');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
@@ -97,7 +98,7 @@ export function TradePanel({
           <p className="text-text-muted text-sm mb-6">
             모의 투자로 500만원의 가상 자산을 받아보세요!
           </p>
-          <Link to="/login">
+          <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`}>
             <Button variant="primary">로그인하기</Button>
           </Link>
         </div>

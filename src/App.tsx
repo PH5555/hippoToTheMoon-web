@@ -57,7 +57,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AppContent />
-        <Toaster position="top-center" richColors />
+        <Toaster position="bottom-center" richColors />
       </BrowserRouter>
     </QueryClientProvider>
   );
