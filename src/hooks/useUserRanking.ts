@@ -8,10 +8,10 @@ import { getUserRanking } from '../api/userRanking';
  * User ranking list
  * - auto refresh every 60s
  */
-export function useUserRanking(limit = 50) {
+export function useUserRanking() {
   return useQuery<UserRankingData, AxiosError<ApiResponse<null>>>({
-    queryKey: ['user-ranking', limit],
-    queryFn: () => getUserRanking(limit),
+    queryKey: ['user-ranking'],
+    queryFn: getUserRanking,
     staleTime: 1000 * 60, // 60s
     refetchInterval: 1000 * 60,
     retry: 1,

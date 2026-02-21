@@ -1,16 +1,16 @@
 import type { ApiResponse } from './auth';
 
-export interface UserRankingEntry {
+export interface UserRankingItem {
   rank: number;
-  nickname: string;
+  userName: string;
   totalAsset: number;
   profitLoss: number;
-  returnRate: number;
+  profitRate: string;
 }
 
 export interface UserRankingData {
-  rankings: UserRankingEntry[];
   snapshotAt: string | null;
+  items: UserRankingItem[];
 }
 
 export type UserRankingResponse = ApiResponse<UserRankingData>;

@@ -5,8 +5,6 @@ import type { TradeType } from '../../types/trading';
 
 interface TradeFormProps {
   tradeType: TradeType;
-  stockCode: string;
-  stockName: string;
   currentPrice: number;
   balance: number;
   holdingQuantity: number;
@@ -26,8 +24,6 @@ const QUICK_PERCENTAGES = [10, 25, 50, 100] as const;
  */
 export function TradeForm({
   tradeType,
-  stockCode,
-  stockName,
   currentPrice,
   balance,
   holdingQuantity,

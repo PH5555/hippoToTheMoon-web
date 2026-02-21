@@ -42,7 +42,7 @@ export function TradePanel({
   const [successResult, setSuccessResult] = useState<TradeResult | null>(null);
 
   const { buy, sell, isLoading, error } = useTrading();
-  const { holdings, getHoldingByStockCode } = useHoldings(isAuthenticated);
+  const { getHoldingByStockCode } = useHoldings(isAuthenticated);
 
   // 해당 종목 보유 정보
   const holding = getHoldingByStockCode(stockCode);
@@ -172,8 +172,6 @@ export function TradePanel({
         {/* 거래 폼 */}
         <TradeForm
           tradeType={tradeType}
-          stockCode={stockCode}
-          stockName={stockName}
           currentPrice={currentPrice}
           balance={balance}
           holdingQuantity={holdingQuantity}

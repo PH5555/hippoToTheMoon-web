@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { buyStock, sellStock } from '../api/trading';
-import type { TradeResult, TradeType, TradeResultResponse } from '../types/trading';
+import type { TradeResult, TradeResultResponse } from '../types/trading';
 import type { ApiResponse } from '../types/auth';
 import { getTradingErrorMessage } from '../types/trading';
 
