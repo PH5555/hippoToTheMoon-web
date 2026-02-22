@@ -10,6 +10,8 @@ interface TradeFormProps {
   holdingQuantity: number;
   isLoading?: boolean;
   error?: string | null;
+  submitBlocked?: boolean;
+  submitBlockedReason?: string | null;
   onSubmit: (quantity: number) => void;
 }
 
@@ -29,6 +31,8 @@ export function TradeForm({
   holdingQuantity,
   isLoading = false,
   error,
+  submitBlocked = false,
+  submitBlockedReason = null,
   onSubmit,
 }: TradeFormProps) {
   const [quantity, setQuantity] = useState<number>(0);
@@ -62,6 +66,10 @@ export function TradeForm({
   // 제출 핸들러
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitBlocked) {
+      return;
+    }
+
     if (quantity > 0 && quantity <= maxQuantity) {
       onSubmit(quantity);
     }
@@ -69,6 +77,7 @@ export function TradeForm({
 
   // 유효성 검사
   const isValid = quantity > 0 && quantity <= maxQuantity;
+  const displayError = submitBlockedReason || error;
   const showInsufficientBalance = isBuy && totalAmount > balance;
   const showInsufficientHolding = !isBuy && quantity > holdingQuantity;
 
@@ -171,9 +180,9 @@ export function TradeForm({
       </div>
 
       {/* 에러 메시지 */}
-      {error && (
+      {displayError && (
         <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-          <p className="text-red-400 text-sm">{error}</p>
+          <p className="text-red-400 text-sm">{displayError}</p>
         </div>
       )}
 
@@ -195,7 +204,7 @@ export function TradeForm({
         variant={isBuy ? 'primary' : 'secondary'}
         size="lg"
         className="w-full"
-        disabled={!isValid || isLoading}
+        disabled={!isValid || isLoading || submitBlocked}
         isLoading={isLoading}
       >
         {isBuy ? '매수하기' : '매도하기'}
